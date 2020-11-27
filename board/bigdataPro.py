@@ -13,6 +13,13 @@ import pandas as pd
 import numpy as np
 import requests # 다른 페이지에 넘어갈? 접속할? 때 필요한 것
 
+from pyboard.settings import STATIC_DIR, TEMPLATE_DIR
+from konlpy.tag._okt import Okt
+from collections import Counter
+import pytagcloud
+import folium
+from folium import plugins
+    
 def movie_crawling(data):
     for i in range(5): # 영화 페이지 100page를 crawling합니다
         url='https://movie.naver.com/movie/point/af/list.nhn?&page='   # page 한 번 눌러서 page번호가 들어간 url을 적용
@@ -44,6 +51,64 @@ def movie_crawling(data):
                 content=content_arr[2].replace("\t","").replace("\n","")    # 공백을 지운다
                 data.append([title,point,content])  # 댓글의 정보를 가지고있는 list를 만든다
                 
-         
+def make_graph(titles,points):
+    # 한글 font 처리
+    font_location = "c:/Windows/fonts/malgun.ttf"
+    font_name = font_manager.FontProperties(fname=font_location).get_name()
+    rc('font', family=font_name)
+    
+    # chart 그리기
+    plt.xlabel('영화제목')
+    plt.ylabel('평균평점')
+    plt.grid(True)  # grid 표시하겠다
+    plt.bar(range(len(titles)), points, align='center')
+    # bar chart를 그린다 / x축, y축, center에 놓는다
+    plt.xticks(range(len(titles)), list(titles), rotation='70')
+    # x축에 title을 넣는데 겹치니까 70도 회전해서 넣는다
+    plt.savefig(os.path.join(STATIC_DIR,'images/fig01.png'), dpi=300)
+    # 저장한다 (경로, dpi=300)
+    # STATIC_DIR 이걸 위해 settings에서  
+    # 1. BASE_DIR 아래 줄에 TEMPLATE_DIR=os.path.join(BASE_DIR, 'board/tamplates') 추가
+    # 2. STATIC_URL 아래 줄에 STATIC_DIR = os.path.join(BASE_DIR, 'board/static')
+    # 각각의 DIR은 BASE_DIR + 뒤에 적은 path를 join한다
+    
 
-
+    
+def saveWordcloud(contents):
+    nlp = Okt()
+    wordtext=""
+    for t in contents:
+        wordtext+=str(t)+" "
+        
+    nouns = nlp.nouns(wordtext)
+    count = Counter(nouns)
+    
+    wordInfo = dict()
+    for tags, counts in count.most_common(100):
+        if (len(str(tags)) > 1):
+            wordInfo[tags] = counts
+    filename=os.path.join(STATIC_DIR,'images/wordcloud01.png')
+    
+    taglist = pytagcloud.make_tags(dict(wordInfo).items(), maxsize=80)
+    pytagcloud.create_tag_image(taglist, filename, size=(640, 480), fontname='Korean', rectangular=False)
+    
+    
+def cctv_map():
+    popup=[]
+    data_lat_log=[]
+    df=pd.read_csv("e:/cctv.csv",encoding="utf-8")
+    for data in df.values:
+        if data[4]>0:
+            popup.append(data[2])
+            data_lat_log.append([data[3],data[4]])
+    
+    m=folium.Map([35.1803305,129.0516257], zoop_start=11)
+    plugins.MarkerCluster(data_lat_log,popups=popup).add_to(m)
+    m.save(os.path.join(TEMPLATE_DIR,"map/map01.html"))   
+    
+    
+    
+    
+    
+    
+    

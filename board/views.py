@@ -11,11 +11,23 @@ from board.models import Board, Comment, Movie
 from django.db.models import Q
 import math
 from board import bigdataPro
-
+import pandas as pd
+from django.db.models.aggregates import Avg
 
 # Create your views here.
 def main(request):
     return render(request, "main.html")
+
+
+def wordcloud(request):
+    content=Movie.objects.values('content')
+    df=pd.DataFrame(content)
+    bigdataPro.saveWordcloud(df.content)
+    return render(request,'wordcloud.html', {'content':df.content})
+
+def cctv_map(request):
+    bigdataPro.cctv_map()
+    return render(request, "map/map01.html")
 
 def movie_save(request):
     data=[]
@@ -26,7 +38,17 @@ def movie_save(request):
     return redirect("/")
 
 def write(request):
+    
     return render(request,"write.html")
+
+def chart(request):
+    #sql='select title,avg(point) points from board_movie group by title'
+    #data=Movie.objects.raw(sql)
+    data=Movie.objects.values('title').annotate(point_avg=Avg('point'))[0:10]
+    df=pd.DataFrame(data)
+    bigdataPro.make_graph(df.title, df.point_avg)
+    return render(request,"chart.html",{"data":data})
+    
 
 
 def list(request):

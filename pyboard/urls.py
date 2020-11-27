@@ -23,7 +23,7 @@ urlpatterns = [
     # 이는 내장된 admin에 해당하는 view를 return해주는 역할을 할거임 아마도
     
     path('movie_save',views.movie_save),
-    
+    path('map',views.cctv_map),
     path('main',views.main),
         
     path('insert', views.insert),   # C
@@ -40,7 +40,10 @@ urlpatterns = [
     
     path('update', views.update),   # U
     
+    path('wordcloud', views.wordcloud),
     
     path('delete', views.delete),   # D
+    
+    path('chart', views.chart),
     
 ]
