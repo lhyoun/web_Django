@@ -7,9 +7,23 @@ from django.shortcuts import render, redirect
 from django.utils.http import urlquote
 from django.views.decorators.csrf import csrf_exempt
 
-from board.models import Board, Comment
+from board.models import Board, Comment, Movie
 from django.db.models import Q
 import math
+from board import bigdataPro
+
+
+# Create your views here.
+def main(request):
+    return render(request, "main.html")
+
+def movie_save(request):
+    data=[]
+    bigdataPro.movie_crawling(data)
+    for row in data:
+        dto=Movie(title=row[0], point=row[1], content=row[2])
+        dto.save()
+    return redirect("/")
 
 def write(request):
     return render(request,"write.html")
@@ -30,6 +44,7 @@ def list(request):
         search= request.POST["search"]
     except:
         search = ""
+    
     
     print("search_option:",search_option)
     print("search:",search)

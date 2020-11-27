@@ -22,7 +22,10 @@ urlpatterns = [
     # localhost/admin을 요청하면 admin.site.urls가 실행되는데
     # 이는 내장된 admin에 해당하는 view를 return해주는 역할을 할거임 아마도
     
+    path('movie_save',views.movie_save),
     
+    path('main',views.main),
+        
     path('insert', views.insert),   # C
     path('write', views.write),     # C
     path("reply_insert", views.reply_insert),   # C
