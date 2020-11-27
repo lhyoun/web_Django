@@ -1,0 +1,123 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+	<h2>게시판</h2>
+
+	게시물수 {{boardCount}}
+	<br>
+	<a href="write">글쓰기</a>
+
+
+
+	<table border=1>
+		<tr>
+			<td colspan=7 align="center">
+				<form method="post">
+					{% csrf_token %} 
+					<select name="search_option"> 
+					
+						{% if search_option == "writer" %}
+							<option value="">선택하세요</option>
+							<option value="writer" selected>이름</option>
+							<option value="title">제목</option>
+							<option value="content">내용</option>
+							<option value="all">이름+제목+내용</option> 
+							
+						{% elif search_option == "title" %}
+							<option value="">선택하세요</option>
+							<option value="writer">이름</option>
+							<option value="title" selected>제목</option>
+							<option value="content">내용</option>
+							<option value="all">이름+제목+내용</option> 
+							
+						{% elif search_option == "content" %}
+							<option value="">선택하세요</option>
+							<option value="writer">이름</option>
+							<option value="title">제목</option>
+							<option value="content" selected>내용</option>
+							<option value="all">이름+제목+내용</option> 
+							
+						{% elif search_option == "all" %}
+							<option value="">선택하세요</option>
+							<option value="writer">이름</option>
+							<option value="title">제목</option>
+							<option value="content">내용</option>
+							<option value="all" selected>이름+제목+내용</option> 
+						{% else %}
+							<option value="" selected>선택하세요</option>
+							<option value="writer">이름</option>
+							<option value="title">제목</option>
+							<option value="content">내용</option>
+							<option value="all">이름+제목+내용</option> 
+					
+					{% endif %}
+					</select> 
+					
+					<input type="text" name="search" value="{{search}}"> 
+					<input type="submit" value="검색">
+				</form>
+			</td>
+		</tr>
+		<tr>
+			<td>번호</td>
+			<td>제목</td>
+			<td>작성자</td>
+			<td>작성일</td>
+			<td>조회수</td>
+			<td>첨부파일</td>
+			<td>다운로드</td>
+		</tr>
+		{% for row in boardList %}
+		<tr align="center">
+			<td>{{row.idx}}</td>
+			<td><a href="detail?idx={{row.idx}}">{{row.title}}</a></td>
+			<td>{{row.writer}}</td>
+			<td>{{row.post_date|date:"Y-m-d"}}</td>
+			<td>{{row.hit}}</td>
+			<td>{% if row.filesize > 0 %} <a href="download?idx={{row.idx}}">
+					<img src="{% static "images/file.gif"%}">
+			</a> {% endif %}
+			</td>
+			<td>{{row.down}}</td>
+		</tr>
+		{% endfor%}
+		<tr>
+			<td colspan="7" align="center">
+				{% if start_page >= block_size %}
+					<!--  [이전] 표시 --> 
+					<a href="list?start={{prev_list}}">[이전]</a> 
+				{% endif %} 
+				
+				{% autoescape off %} 
+					{% for link in links %} <!-- 페이지 링크 표시 -->
+					{{link}} 
+					{% endfor %} 
+				{% endautoescape %} 
+				
+				{% if total_page > end_page %} 
+					<!-- [다음] 표시 --> 
+					<a href="list?start={{next_list}}">[다음]</a>
+				{% endif %}
+			</td>
+		</tr>
+	</table>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
